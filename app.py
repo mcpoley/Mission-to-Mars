@@ -23,4 +23,5 @@ def scrape():
     return "Scraping Successful!"
 
 if __name__ == "__main__":
+    print("running")
     app.run()
