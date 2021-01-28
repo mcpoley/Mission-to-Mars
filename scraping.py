@@ -1,13 +1,15 @@
 # Import Splinter, BeautifulSoup, and Pandas
 from splinter import Browser
 from bs4 import BeautifulSoup as soup
+from webdriver_manager.chrome import ChromeDriverManager
 import pandas as pd
 import datetime as dt
 
 
 def scrape_all():
     # Initiate headless driver for deployment
-    browser = Browser("chrome", executable_path="chromedriver", headless=True)
+    executable_path={'executable_path': ChromeDriverManager().install()}
+    browser = Browser("chrome", **executable_path, headless=True)
 
     news_title, news_paragraph = mars_news(browser)
 
@@ -59,29 +61,23 @@ def featured_image(browser):
     browser.visit(url)
 
     # Find and click the full image button
-    browser.links.find_by_partial_text("Hulhumale, Maldives").click()
+    browser.links.find_by_partial_text("Mars Probe Landing Ellipse").click()
     browser.links.find_by_partial_text("Download JPG").click()
-
-    # Find and click the full image button
-    html=browser.html
-    full_image_elem=soup(html, "html.parser")
-    full_image=full_image_elem.find('img')
-    print(full_image["src"])
-
+    
     # Parse the resulting html with soup
     html = browser.html
     img_soup = soup(html, 'html.parser')
-
     # Add try/except for error handling
     try:
         # Find the relative image url
-        img_url_rel = img_soup.select_one('figure.lede a img').get("src")
+        full_image=img_soup.find('img')
+        mars_pic=full_image["src"]
 
     except AttributeError:
         return None
 
     # Use the base url to create an absolute url
-    img_url = f'https://www.jpl.nasa.gov{img_url_rel}'
+    img_url = mars_pic
 
     return img_url
 
